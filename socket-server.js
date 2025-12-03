@@ -6,13 +6,15 @@ const cors = require("cors");
 
 // Configuración
 const PORT = process.env.PORT || 3001;
+
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://*.vercel.app",
   "https://*.onrender.com",
+  "https://*.up.railway.app", // ← NUEVO: Para Railway
+  "https://socket-video-server.up.railway.app", // ← Tu dominio específico
 ];
-
 // Crear app Express
 const app = express();
 app.use(
