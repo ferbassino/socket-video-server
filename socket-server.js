@@ -13,7 +13,7 @@ const ALLOWED_ORIGINS = [
   "https://*.vercel.app",
   "https://*.onrender.com",
   "https://*.up.railway.app", // ← NUEVO: Para Railway
-  "https://socket-video-server.up.railway.app", // ← Tu dominio específico
+  "https://socket-video-server-production.up.railway.app", // ← Tu dominio específico
 ];
 // Crear app Express
 const app = express();
