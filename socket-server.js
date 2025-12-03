@@ -9,11 +9,17 @@ const PORT = process.env.PORT || 3001;
 
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",
+  "https://localhost:5173", // ← AÑADE ESTA LÍNEA (HTTPS)
+  "http://localhost:5174", // ← También para posibles otros puertos
+  "https://localhost:5174",
   "http://localhost:3000",
+  "https://localhost:3000",
   "https://*.vercel.app",
   "https://*.onrender.com",
-  "https://*.up.railway.app", // ← NUEVO: Para Railway
-  "https://socket-video-server-production.up.railway.app", // ← Tu dominio específico
+  "https://*.up.railway.app",
+  "https://socket-video-server-production.up.railway.app",
+  "https://socket-video-server.up.railway.app",
+  "https://tu-frontend-en-railway.app", // ← Si tu frontend también está en Railway
 ];
 // Crear app Express
 const app = express();
