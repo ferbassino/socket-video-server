@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 module.exports = function initializeSocket(server) {
   const io = new Server(server, {
     cors: { origin: "*" },
-    transports: ["websocket"], // Railway soporta websockets
+    transports: ["websocket"],
   });
 
   io.on("connection", (socket) => {
@@ -13,45 +13,44 @@ module.exports = function initializeSocket(server) {
     socket.on("join-room", ({ roomId, role }) => {
       if (!roomId) return;
       socket.join(roomId);
-      socket.data.role = role || "mobile";
-      console.log(`${socket.id} joined room ${roomId} as ${socket.data.role}`);
+      socket.data.role = role;
 
-      // avisar a los demás en la sala
-      socket
-        .to(roomId)
-        .emit("peer-joined", { id: socket.id, role: socket.data.role });
+      console.log(`${socket.id} joined room ${roomId} as ${role}`);
+
+      // 🔥 SI entra un móvil → avisamos a los viewers
+      if (role === "sender") {
+        socket.to(roomId).emit("peer-joined", {
+          id: socket.id,
+          role: "sender",
+        });
+      }
+
+      // 🔥 SI entra un viewer → avisamos al móvil
+      if (role === "viewer") {
+        socket.to(roomId).emit("viewer-ready", {
+          viewerId: socket.id,
+        });
+      }
     });
 
-    // Mobile -> Viewer : offer
+    // Mobile -> Viewer : OFFER
     socket.on("offer", ({ roomId, to, sdp }) => {
-      if (to) {
-        io.to(to).emit("offer", { from: socket.id, sdp });
-      } else {
-        socket.to(roomId).emit("offer", { from: socket.id, sdp });
-      }
+      io.to(to).emit("offer", { from: socket.id, sdp });
     });
 
-    // Viewer -> Mobile : answer
+    // Viewer -> Mobile : ANSWER
     socket.on("answer", ({ roomId, to, sdp }) => {
-      if (to) {
-        io.to(to).emit("answer", { from: socket.id, sdp });
-      } else {
-        socket.to(roomId).emit("answer", { from: socket.id, sdp });
-      }
+      io.to(to).emit("answer", { from: socket.id, sdp });
     });
 
-    // ICE candidate (both ways)
-    socket.on("ice-candidate", ({ roomId, to, candidate }) => {
-      if (to) {
-        io.to(to).emit("ice-candidate", { from: socket.id, candidate });
-      } else {
-        socket.to(roomId).emit("ice-candidate", { from: socket.id, candidate });
-      }
+    // ICE intercambiado
+    socket.on("ice-candidate", ({ to, candidate }) => {
+      io.to(to).emit("ice-candidate", { from: socket.id, candidate });
     });
 
     socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected:", socket.id);
       io.emit("peer-left", { id: socket.id });
+      console.log("❌ Disconnected:", socket.id);
     });
   });
 
